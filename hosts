@@ -1,0 +1,9 @@
+[device]
+10.67.7.2
+
+[device:vars]
+ansible_user = nsuzkarmally
+ansible_password = ncH5duzf2wUNK$g_
+ansible_connection = network_cli
+ansible_network_os = ios
+

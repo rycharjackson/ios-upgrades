@@ -1,0 +1,50 @@
+---
+# Ansible Playbook to upgrade Cisco IOS
+- hosts: device
+  gather_facts: false
+  connection: local
+
+  vars:
+    models:
+      "WS-C2960X-48FPS-L":
+        ios_version: "15.2.7E3(MD)"
+        ios_archive: "c2960x-universalk9-tar.152-7.E3.tar"
+        ios_binary: "c2960x-universalk9-mz.152-7.E3.bin"
+        ios_size_kb: 1111141472
+        server: "10.130.153.10"
+    protocol: "tftp"
+    space_needed: 11111111111
+  tasks:
+    - name: Gather all legacy facts
+      ios_facts:
+        gather_subset: hardware
+      tags:
+        - facts
+
+        - name: Asset that there is enough flash space for upload
+          assert:
+            that:
+              - ansible_net_filesystems_info['flash:']['spacefree_kb'] > models[ansible_net_model]["ios_size_kb"]
+            msg: "There is not enough space left on the device's flash"
+          when:
+            - models[ansible_net_model]["ios_archive"] not in dir_flash.stdout[0]
+          tags:
+            - flash
+
+  tasks:
+      - name: CHECK space and flash 
+        ios_facts:
+          gather_subset: hardware
+
+      - debug:
+          msg:
+          - "Current free space is {{ ansible_net_filesystems_info['flash:']['spacefree_kb'] }}"
+          - "Required free space is {{ space_needed }}"
+
+
+      - debug:
+          msg:
+          - "There is not enough space on the device."
+      
+        when: 
+        - ansible_net_filesystems_info['flash:']['spacefree_kb'] < space_needed

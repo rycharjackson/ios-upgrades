@@ -1,0 +1,19 @@
+## Enable the scp server to transfer the file to the switch
+- hosts: device
+  connection: local
+
+  tasks:
+    - name: Backup Running Config
+      cisco.ios.ios_command:
+        commands:
+        - config t
+        - ip scp server enable
+#        - ip tftp blocksize 8192
+## Copy software to target device 
+ 
+    - name: Copy Image // This could take up to 4 minutes
+      net_put:
+        src: "~/ios-upgrade/images/c2960x-universalk9-tar.152-7.E3.tar"
+        dest: "flash:/c2960x-universalk9-tar.152-7.E3.tar"
+      vars:
+        ansible_command_timeout: 600

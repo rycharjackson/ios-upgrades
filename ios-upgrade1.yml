@@ -1,0 +1,151 @@
+---
+# Ansible Playbook to upgrade Cisco IOS
+- hosts: device
+  gather_facts: false
+  connection: local
+
+  vars:
+    models:
+      "WS-C2960X-48FPS-L":
+        ios_version: "15.2.7E3(MD)"
+        ios_archive: "c2960x-universalk9-tar.152-7.E3.tar"
+        ios_binary: "c2960x-universalk9-mz.152-7.E3.bin"
+        ios_size_kb: 41472
+        server: "10.130.153.10"
+    protocol: "tftp"
+    space_needed: 41472
+    
+
+
+## Create backup folder for today
+
+- hosts: device
+  connection: local
+
+  tasks:
+  - name: Get ansible date/time facts
+    shell: "date +%Y-%m-%d%H-%M-%S"
+    register: tstamp
+      
+  - name: Store DTG as fact
+    set_fact:
+      DTG: "{{ tstamp.stdout[0:10] }}"
+
+  - name: 
+    debug:
+      msg: "Current date : {{DTG }}"
+
+## Backup the Running Config and enable scp server on switch.
+  - name: Backup Running Config
+    ios_command:
+      commands: show run
+        
+    register: config
+  - name: Save output to ./backups/
+    copy:
+      content: "{{config.stdout[0]}}"
+      dest: "./backups/{{ inventory_hostname }}-{{DTG}}-config.txt"
+
+## Save the Running Config
+
+  - name: Save the running config
+    ios_config:
+      save_when: always
+
+## Enable the scp server to transfer the file to the switch
+- hosts: device
+  connection: local
+
+  tasks:
+    - name: Backup Running Config
+      cisco.ios.ios_command:
+        commands:
+        - config t
+        - ip scp server enable
+        - ip tftp blocksize 8192
+
+#Gathering the tasks  
+  tasks:
+    - name: Gather all legacy facts
+      ios_facts:
+        gather_subset: hardware
+      tags:
+        - facts
+
+#checking the boot version     
+  tasks:   
+    - name: Check Boot path
+      ios_command:
+        commands: 'show boot | i BOOT'
+      register: bootvar
+
+      when:
+      - models[ansible_net_model] is defined
+      tags:
+        - bootvar
+
+#check boot path
+  tasks:
+    - name: CHECK CURRENT Version
+      ios_facts:
+    
+    - debug:
+        msg:
+        - "Current version is {{ ansible_net_version }}"
+        - "Upgrade image is 15.2.7E3 (MD)"
+
+    - debug:
+        msg:
+        - "Image is not compliant and will be upgraded"
+      
+      when: ansible_net_version != "15.2.7E3(MD)"
+#checking compliance
+- hosts: device
+  gather_facts: false
+  connection: local
+
+  vars:
+    models:
+      "WS-C2960X-48FPS-L":
+        ios_version: "15.2.7E3(MD)"
+        ios_archive: "c2960x-universalk9-tar.152-7.E3.tar"
+        ios_binary: "c2960x-universalk9-mz.152-7.E3.bin"
+        ios_size_kb: 41472
+        server: "10.130.153.10"
+    protocol: "tftp"
+    space_needed: 41472
+
+  tasks:
+    - name: Upgarde when non-compliant
+      block:
+        - name: Check if IOS is already present on the flash
+          ios_command:
+            commands: 'show flash: | include {{ models[ansible_net_model]["ios_archive"] }}'
+          register: dir_flash
+          tags:
+            - flash
+#Checking there is space on the flash
+        - name: Asset that there is enough flash space for upload
+          assert:
+            that:
+              - ansible_net_filesystems_info['flash:']['spacefree_kb'] > space_needed
+            msg: "There is not enough space left on the device's flash"
+          when:
+            - models[ansible_net_model]["ios_archive"] not in dir_flash.stdout[0]
+          tags:
+            - flash
+#Copy from the server
+        - name: Start Copy from Server
+          ios_command:
+            commands: 
+              - command: copy {{ protocol }}://10.130.153.10/c2960x-universalk9-tar.152-7.E3.tar flash:/
+                prompt: 'Destination filename \[{{ models[ansible_net_model]["ios_archive"] }}\]?'
+                answer: "\r"
+          when: 
+            - ansible_net_filesystems_info['flash:']['spacefree_kb'] > space_needed
+            - ansible_net_model != models[ansible_net_model]["ios_version"]
+            - models[ansible_net_model]["ios_archive"] not in dir_flash.stdout[0]
+          vars:
+              ansible_command_timeout: 1800
+          tags:
+            - upload

@@ -1,0 +1,1009 @@
+Building configuration...
+
+Current configuration : 24393 bytes
+!
+! Last configuration change at 19:49:12 CDT Sun May 10 2020
+!
+version 15.0
+no service pad
+service timestamps debug datetime localtime
+service timestamps log datetime localtime
+service password-encryption
+!
+hostname LAB094-CS29X-1M1
+!
+boot-start-marker
+boot-end-marker
+!
+logging buffered 64000
+!
+username engineer1 privilege 15 secret 5 $1$w/fQ$CosN1uFdY2SKjygsKCk5J.
+aaa new-model
+!
+!
+aaa authentication login default local group tacacs+
+aaa authentication login no-tacacs local
+aaa authentication ppp default local
+aaa authorization config-commands
+aaa authorization exec default local group tacacs+ 
+aaa authorization commands 0 default group tacacs+ local 
+aaa authorization commands 1 default group tacacs+ local 
+aaa authorization commands 15 default group tacacs+ local 
+aaa authorization network default local 
+aaa accounting exec default start-stop group tacacs+
+aaa accounting network default start-stop group tacacs+
+!
+!
+!
+!
+!
+!
+aaa session-id common
+clock timezone CST -6 0
+clock summer-time CDT recurring
+switch 1 provision ws-c2960x-48fps-l
+switch 2 provision ws-c2960x-48fps-l
+switch 3 provision ws-c2960x-48fps-l
+authentication mac-move permit
+!
+!
+no ip domain-lookup
+ip domain-name saksinc.com
+!
+!
+crypto pki trustpoint TP-self-signed-2331468288
+ enrollment selfsigned
+ subject-name cn=IOS-Self-Signed-Certificate-2331468288
+ revocation-check none
+ rsakeypair TP-self-signed-2331468288
+!
+!
+crypto pki certificate chain TP-self-signed-2331468288
+ certificate self-signed 01
+  3082022B 30820194 A0030201 02020101 300D0609 2A864886 F70D0101 05050030 
+  31312F30 2D060355 04031326 494F532D 53656C66 2D536967 6E65642D 43657274 
+  69666963 6174652D 33323339 37363839 3630301E 170D3137 30343039 30383332 
+  31335A17 0D323030 31303130 30303030 305A3031 312F302D 06035504 03132649 
+  4F532D53 656C662D 5369676E 65642D43 65727469 66696361 74652D33 32333937 
+  36383936 3030819F 300D0609 2A864886 F70D0101 01050003 818D0030 81890281 
+  8100A9F6 B8FF069E 42CFBEB3 D2EB97F1 77C1F0A4 97588FF8 C994FABB 632575CC 
+  2EC79A21 56BF5801 1DC13253 BD3FC43E B7065D91 35357DF3 C8A0C077 A63DD83A 
+  1D2EE2A1 B933C102 88B3DA0C 01C37BB5 73AA0D38 C7654494 7C56FDD0 18E53120 
+  DD93C1F1 96AC8DD1 B1D6A6D1 7D18D468 28E651ED 01C66073 82B70D41 914DC8BB 
+  4ABB0203 010001A3 53305130 0F060355 1D130101 FF040530 030101FF 301F0603 
+  551D2304 18301680 14E001AE DD505225 2C45233F B5F29891 3551E59A EE301D06 
+  03551D0E 04160414 E001AEDD 5052252C 45233FB5 F2989135 51E59AEE 300D0609 
+  2A864886 F70D0101 05050003 81810049 38B84C4F 1D03D0F1 E9A94DE9 21595D2A 
+  C5D34E49 92C9A978 3C0D7C84 609A115A 2E62C7A9 0268FD03 0054E540 0A154185 
+  985A4483 780F1763 85320A74 F6294D6E 2259C926 5B980B48 179FE97B 517C025C 
+  4D78A687 0A4F39D4 15543A03 A8E73750 407BC1DA 0CC68CDD BB9098EB BCFC1DA1 
+  77113955 4D703301 A680832B B328A4
+  	quit
+!
+spanning-tree mode rapid-pvst
+spanning-tree portfast bpduguard default
+spanning-tree extend system-id
+spanning-tree vlan 1-4094 priority 4096
+!
+!
+!
+!
+!
+errdisable recovery cause udld
+errdisable recovery cause bpduguard
+errdisable recovery cause security-violation
+errdisable recovery cause channel-misconfig (STP)
+errdisable recovery cause pagp-flap
+errdisable recovery cause dtp-flap
+errdisable recovery cause link-flap
+errdisable recovery cause sfp-config-mismatch
+errdisable recovery cause gbic-invalid
+errdisable recovery cause psecure-violation
+errdisable recovery cause port-mode-failure
+errdisable recovery cause dhcp-rate-limit
+errdisable recovery cause pppoe-ia-rate-limit
+errdisable recovery cause mac-limit
+errdisable recovery cause vmps
+errdisable recovery cause storm-control
+errdisable recovery cause inline-power
+errdisable recovery cause arp-inspection
+errdisable recovery cause loopback
+errdisable recovery cause small-frame
+errdisable recovery cause psp
+!
+vlan internal allocation policy ascending
+!
+ip ssh version 2
+ip scp server enable
+!
+!
+!
+!
+!
+interface Port-channel2
+ description **Lab094-WLC2504-01 2Gig EtherChannel**
+ switchport mode trunk
+!
+interface Port-channel3
+ description **Lab094-WLC2504-02 2Gig EtherChannel**
+ switchport access vlan 445
+ switchport trunk native vlan 425
+ switchport trunk allowed vlan 20,410,420,425,430,435
+ switchport mode trunk
+!
+interface Port-channel11
+ description **Lab094-2960x-1A1**
+ switchport trunk native vlan 425
+ switchport trunk allowed vlan 20,410,420,425,430,435
+ switchport mode trunk
+!
+interface FastEthernet0
+ no ip address
+ shutdown
+!
+interface GigabitEthernet1/0/1
+ description **POS Controller NIC1**
+ switchport access vlan 405
+ switchport mode access
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/2
+ description **ATT NMD**
+ switchport access vlan 20
+ switchport mode access
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/3
+ description **Lab094-AP-ROGUE**
+ switchport trunk native vlan 425
+ switchport mode trunk
+!
+interface GigabitEthernet1/0/4
+ description **DIGI**
+ switchport access vlan 425
+ switchport mode access
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/5
+ description **DVR**
+ switchport access vlan 445
+ switchport mode access
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/6
+ description **DMX**
+ switchport access vlan 415
+ switchport mode access
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/7
+ description **AP**
+ switchport trunk native vlan 425
+ switchport mode trunk
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/8
+ description **EXG100**
+ switchport access vlan 415
+ switchport mode access
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/9
+ description **DVR Backup Storage**
+ switchport access vlan 445
+ switchport mode access
+ priority-queue out 
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/10
+ description **Avaya Gateway**
+ switchport access vlan 420
+ switchport mode access
+ priority-queue out 
+!
+interface GigabitEthernet1/0/11
+ description **AP**
+ switchport access vlan 425
+ switchport mode access
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/12
+ description **Lab094RVB770-01 PRI**
+ switchport access vlan 425
+ switchport mode access
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/13
+ description **Lab094-WLC2504-01 Port 1**
+ switchport mode trunk
+ channel-group 2 mode on
+!
+interface GigabitEthernet1/0/14
+ description **Lab094-WLC2504-02 Port 1**
+ switchport trunk native vlan 425
+ switchport trunk allowed vlan 20,410,420,425,430,435
+ switchport mode trunk
+ spanning-tree portfast
+ channel-group 3 mode on
+!
+interface GigabitEthernet1/0/15
+ description **AP**
+ switchport access vlan 425
+ switchport mode access
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/16
+ description **Camera**
+ switchport access vlan 445
+ switchport mode access
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/17
+ description **Camera**
+ switchport access vlan 445
+ switchport mode access
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/18
+ description **Camera**
+ switchport access vlan 445
+ switchport mode access
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/19
+ description **Camera**
+ switchport access vlan 445
+ switchport mode access
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/20
+ description **Camera**
+ switchport access vlan 445
+ switchport mode access
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/21
+ description **Camera**
+ switchport access vlan 445
+ switchport mode access
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/22
+ description **Camera**
+ switchport access vlan 445
+ switchport mode access
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/23
+ description **Camera**
+ switchport access vlan 445
+ switchport mode access
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/24
+ description **Camera**
+ switchport access vlan 445
+ switchport trunk native vlan 405
+ switchport trunk allowed vlan 405,420
+ switchport mode access
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/25
+ description **Camera**
+ switchport access vlan 410
+ switchport mode access
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/26
+ description **Camera**
+ switchport access vlan 445
+ switchport mode access
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/27
+ description **Camera**
+ switchport access vlan 445
+ switchport mode access
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/28
+!
+interface GigabitEthernet1/0/29
+ description **Camera**
+ switchport access vlan 445
+ switchport mode access
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/30
+ description **Camera**
+ switchport access vlan 445
+ switchport mode access
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/31
+ description **UPS-APC**
+ switchport access vlan 425
+ switchport mode access
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/32
+ description **UPS-APC**
+ switchport access vlan 425
+ switchport trunk native vlan 405
+ switchport trunk allowed vlan 405,420
+ switchport mode trunk
+!
+interface GigabitEthernet1/0/33
+ switchport access vlan 425
+ switchport mode access
+!
+interface GigabitEthernet1/0/34
+ description **PHONE-POS**
+ switchport trunk native vlan 405
+ switchport trunk allowed vlan 405,420
+ switchport mode trunk
+!
+interface GigabitEthernet1/0/35
+ description **PHONE-POS**
+ switchport trunk native vlan 405
+!
+interface GigabitEthernet1/0/36
+ description **PHONE-POS**
+ switchport trunk native vlan 405
+ switchport trunk allowed vlan 405,420
+ switchport mode trunk
+!
+interface GigabitEthernet1/0/37
+!
+interface GigabitEthernet1/0/38
+ description **PHONE-POS**
+ switchport trunk native vlan 405
+ switchport trunk allowed vlan 405,420
+ switchport mode trunk
+!
+interface GigabitEthernet1/0/39
+ description **PHONE-POS**
+ switchport mode trunk
+!
+interface GigabitEthernet1/0/40
+ description **PHONE-POS**
+ switchport trunk native vlan 405
+ switchport trunk allowed vlan 400,420
+ switchport mode trunk
+ spanning-tree portfast trunk
+!
+interface GigabitEthernet1/0/41
+ switchport access vlan 425
+ switchport mode access
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/42
+ description **PHONE-PC**
+ switchport trunk native vlan 400
+ switchport trunk allowed vlan 400,420
+ switchport mode trunk
+!
+interface GigabitEthernet1/0/43
+ description **PHONE-PC**
+ switchport trunk native vlan 400
+ switchport trunk allowed vlan 400,420
+ switchport mode trunk
+ spanning-tree portfast trunk
+!
+interface GigabitEthernet1/0/44
+ description **Lab094FG90D-HA1-WAN1**
+ switchport access vlan 991
+ switchport mode access
+ priority-queue out 
+!
+interface GigabitEthernet1/0/45
+ description TEST-PC-VLAN-410
+ switchport access vlan 410
+ switchport mode access
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/46
+ description **Lab094RVB770-01 LAN0_0**
+ switchport access vlan 991
+ switchport mode access
+ speed 1000
+ duplex full
+ priority-queue out 
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/47
+ description **Lab094FG90D-HA1-WAN1**
+ switchport access vlan 991
+ switchport mode access
+ priority-queue out 
+!
+interface GigabitEthernet1/0/48
+ description **Lab094FG90D-HA1-WAN2**
+ switchport access vlan 425
+ switchport mode trunk
+ speed 1000
+ duplex full
+ priority-queue out 
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/49
+ description **to Lab094-2960x-1A1**
+ switchport trunk native vlan 425
+ switchport mode trunk
+ channel-group 11 mode active
+!
+interface GigabitEthernet1/0/50
+ description Network Assign
+ switchport mode trunk
+ shutdown
+!
+interface GigabitEthernet1/0/51
+ description Network Assign
+ switchport mode trunk
+ shutdown
+ spanning-tree portfast
+!
+interface GigabitEthernet1/0/52
+ description Network Assign
+ switchport mode trunk
+ shutdown
+!
+interface GigabitEthernet2/0/1
+ description **POS Controller NIC2**
+ switchport access vlan 405
+ switchport mode access
+ power inline auto max 15400
+ spanning-tree portfast
+!
+interface GigabitEthernet2/0/2
+ description **POS MGMT**
+ switchport access vlan 405
+ switchport mode access
+ power inline auto max 15400
+ spanning-tree portfast
+!
+interface GigabitEthernet2/0/3
+ description **FedEx**
+ switchport access vlan 415
+ switchport mode access
+ power inline auto max 15400
+ spanning-tree portfast
+!
+interface GigabitEthernet2/0/4
+ description **ALARMS-ADT**
+ switchport access vlan 415
+ switchport mode access
+ power inline auto max 15400
+ spanning-tree portfast
+!
+interface GigabitEthernet2/0/5
+ description **DVR**
+ switchport access vlan 445
+ switchport mode access
+ power inline auto max 15400
+ spanning-tree portfast
+!
+interface GigabitEthernet2/0/6
+ description **Agilence**
+ switchport access vlan 415
+ switchport mode access
+ power inline auto max 15400
+ spanning-tree portfast
+!
+interface GigabitEthernet2/0/7
+ description **ST600 ShopperTrak**
+ switchport access vlan 415
+ switchport mode access
+ power inline auto max 15400
+ priority-queue out 
+ spanning-tree portfast
+!
+interface GigabitEthernet2/0/8
+ description **Avaya Wireless Phone**
+ switchport access vlan 420
+ switchport mode access
+ power inline auto max 15400
+ priority-queue out 
+ spanning-tree portfast
+!
+interface GigabitEthernet2/0/9
+ description **DVR Backup Storage**
+ switchport access vlan 400
+ switchport mode access
+ power inline auto max 15400
+ spanning-tree portfast
+!
+interface GigabitEthernet2/0/10
+ description **Avaya Gateway**
+ switchport access vlan 420
+ switchport trunk native vlan 425
+ switchport mode access
+ power inline auto max 15400
+ priority-queue out 
+ channel-group 2 mode on
+!
+interface GigabitEthernet2/0/11
+ description **AP**
+ switchport access vlan 425
+ switchport mode access
+ power inline auto max 15400
+ spanning-tree portfast
+!
+interface GigabitEthernet2/0/12
+ description **RIVERBED-BACKUP**
+ switchport access vlan 425
+ switchport trunk native vlan 425
+ switchport trunk allowed vlan 20,410,420,425,430,435
+ switchport mode access
+ power inline auto max 15400
+ spanning-tree portfast
+ channel-group 3 mode on
+!
+interface GigabitEthernet2/0/13
+ description **Lab094-WLC2504-01 Port 2**
+ switchport mode trunk
+ channel-group 2 mode on
+!
+interface GigabitEthernet2/0/14
+ description **Lab094-WLC2504-02 Port 2**
+ switchport access vlan 445
+ switchport trunk native vlan 425
+ switchport trunk allowed vlan 20,410,420,425,430,435
+ switchport mode trunk
+ power inline auto max 15400
+ spanning-tree portfast
+ channel-group 3 mode on
+!
+interface GigabitEthernet2/0/15
+ description **AP**
+ switchport access vlan 425
+ switchport mode access
+ power inline auto max 15400
+ spanning-tree portfast
+!
+interface GigabitEthernet2/0/16
+ description **Camera**
+ switchport access vlan 445
+ switchport mode access
+ power inline auto max 15400
+ spanning-tree portfast
+!
+interface GigabitEthernet2/0/17
+ description **Camera**
+ switchport access vlan 445
+ switchport mode access
+ power inline auto max 15400
+ spanning-tree portfast
+!
+interface GigabitEthernet2/0/18
+ description **Camera**
+ switchport access vlan 445
+ switchport mode access
+ power inline auto max 15400
+ spanning-tree portfast
+!
+interface GigabitEthernet2/0/19
+ description **Camera**
+ switchport access vlan 445
+ switchport mode access
+ power inline auto max 15400
+ spanning-tree portfast
+!
+interface GigabitEthernet2/0/20
+ description **Camera**
+ switchport access vlan 445
+ switchport mode access
+ power inline auto max 15400
+ spanning-tree portfast
+!
+interface GigabitEthernet2/0/21
+ description **Camera**
+ switchport access vlan 445
+ switchport mode access
+ power inline auto max 15400
+ spanning-tree portfast
+!
+interface GigabitEthernet2/0/22
+ description **Camera**
+ switchport access vlan 445
+ switchport mode access
+ power inline auto max 15400
+ spanning-tree portfast
+!
+interface GigabitEthernet2/0/23
+ description **Camera**
+ switchport access vlan 445
+ switchport mode access
+ power inline auto max 15400
+ spanning-tree portfast
+!
+interface GigabitEthernet2/0/24
+ description **Camera**
+ switchport access vlan 445
+ switchport mode access
+ power inline auto max 15400
+ spanning-tree portfast
+!
+interface GigabitEthernet2/0/25
+ description **Camera**
+ switchport access vlan 445
+ switchport mode access
+ power inline auto max 15400
+ spanning-tree portfast
+!
+interface GigabitEthernet2/0/26
+ description **Camera**
+ switchport access vlan 445
+ switchport mode access
+ power inline auto max 15400
+ spanning-tree portfast
+!
+interface GigabitEthernet2/0/27
+ description **Camera**
+ power inline auto max 15400
+ spanning-tree portfast
+!
+interface GigabitEthernet2/0/28
+ description **Printer**
+ switchport access vlan 400
+ switchport mode access
+ power inline auto max 15400
+ spanning-tree portfast
+!
+interface GigabitEthernet2/0/29
+ power inline auto max 15400
+!
+interface GigabitEthernet2/0/30
+ description **rtfast
+ power inline auto max 15400
+!
+interface GigabitEthernet2/0/31
+ description **Printer**
+ switchport access vlan 400
+ switchport mode access
+ power inline auto max 15400
+ spanning-tree portfast
+!
+interface GigabitEthernet2/0/32
+ description **AP**
+ switchport access vlan 425
+ switchport mode access
+ power inline auto max 15400
+ spanning-tree portfast
+!
+interface GigabitEthernet2/0/33
+ description **Printer**
+ switchport access vlan 400
+ switchport trunk allowed vlan 405,420
+ switchport mode trunk
+ power inline auto max 15400
+!
+interface GigabitEthernet2/0/34
+ description **AP**
+ power inline auto max 15400
+!
+interface GigabitEthernet2/0/35
+ power inline auto max 15400
+!
+interface GigabitEthernet2/0/36
+ description **PHONE-POS**
+ switchport trunk native vlan 405
+ switchport trunk allowed vlan 405,420
+ switchport mode trunk
+ power inline auto max 15400
+!
+interface GigabitEthernet2/0/37
+ description **PHONE-POS**
+ switchport trunk native vlan 405
+ power inline auto max 15400
+!
+interface GigabitEthernet2/0/38
+ description **PHONE-POS**
+ switchport trunk native vlan 405
+ switchport trunk allowed vlan 405,420
+ switchport mode trunk
+ power inline auto max 15400
+!
+interface GigabitEthernet2/0/39
+ description **PHONE-POS**
+ switchport trunk native vlan 405
+ switchport trunk allowed vlan 405,420
+ switchport mode trunk
+ power inline auto max 15400
+ spanning-tree portfast trunk
+!
+interface GigabitEthernet2/0/40
+ description **PHONE-POS**
+ switchport trunk native vlan 405
+ switchport trunk allowed vlan 405,420
+ switchport mode trunk
+ shutdown
+ power inline auto max 15400
+ no power efficient-ethernet
+!
+interface GigabitEthernet2/0/41
+ description **PHONE-POS**
+ switchport trunk native vlan 405
+ switchport trunk allowed vlan 405,420
+ switchport mode trunk
+ power inline auto max 15400
+!
+interface GigabitEthernet2/0/42
+ description **PHONE-PC**
+ switchport trunk native vlan 400
+ switchport trunk allowed vlan 400,420
+ switchport mode trunk
+ power inline auto max 15400
+ spanning-tree portfast trunk
+!
+interface GigabitEthernet2/0/43
+ description **to Lab094-2960x-1A1**
+ switchport mode trunk
+ power inline auto max 15400
+!
+interface GigabitEthernet2/0/44
+ description **PHONE-PC**
+ switchport trunk native vlan 400
+ switchport trunk allowed vlan 400,420
+ switchport mode trunk
+ power inline auto max 15400
+ spanning-tree portfast trunk
+!
+interface GigabitEthernet2/0/45
+ description **PHONE-PC**
+ switchport trunk native vlan 400
+ switchport trunk allowed vlan 400,420
+ switchport mode trunk
+ power inline auto max 15400
+ spanning-tree portfast trunk
+!
+interface GigabitEthernet2/0/46
+ description **Lab094-RVB770-01 LAN1_0**
+ switchport access vlan 991
+ switchport mode access
+ power inline auto max 15400
+ speed 1000
+ duplex full
+ priority-queue out 
+ spanning-tree portfast
+!
+interface GigabitEthernet2/0/47
+ description **Lab094-FG90D-HA2-WAN1**
+ switchport access vlan 991
+ switchport mode access
+ power inline auto max 15400
+ speed 1000
+ duplex full
+ priority-queue out 
+!
+interface GigabitEthernet2/0/48
+ description **Lab094FG90D-HA2-WAN2**
+ switchport mode trunk
+ power inline auto max 15400
+ speed 1000
+ duplex full
+ priority-queue out 
+!
+interface GigabitEthernet2/0/49
+ description **to Lab094-2960x-1A1**
+ switchport trunk native vlan 425
+ switchport mode trunk
+ channel-group 11 mode active
+!
+interface GigabitEthernet2/0/50
+ description Network Assign
+ switchport mode trunk
+ shutdown
+!
+interface GigabitEthernet2/0/51
+ description Network Assign
+ switchport mode trunk
+ shutdown
+!
+interface GigabitEthernet2/0/52
+ description Network Assign
+ switchport mode trunk
+ shutdown
+!
+interface GigabitEthernet3/0/1
+ power inline auto max 15400
+!
+interface GigabitEthernet3/0/2
+ power inline auto max 15400
+!
+interface GigabitEthernet3/0/3
+ power inline auto max 15400
+!
+interface GigabitEthernet3/0/4
+ power inline auto max 15400
+!
+interface GigabitEthernet3/0/5
+ power inline auto max 15400
+!
+interface GigabitEthernet3/0/6
+ power inline auto max 15400
+!
+interface GigabitEthernet3/0/7
+ power inline auto max 15400
+!
+interface GigabitEthernet3/0/8
+ power inline auto max 15400
+!
+interface GigabitEthernet3/0/9
+ power inline auto max 15400
+!
+interface GigabitEthernet3/0/10
+ power inline auto max 15400
+!
+interface GigabitEthernet3/0/11
+ power inline auto max 15400
+!
+interface GigabitEthernet3/0/12
+ power inline auto max 15400
+!
+interface GigabitEthernet3/0/13
+ power inline auto max 15400
+!
+interface GigabitEthernet3/0/14
+ power inline auto max 15400
+!
+interface GigabitEthernet3/0/15
+ power inline auto max 15400
+!
+interface GigabitEthernet3/0/16
+ power inline auto max 15400
+!
+interface GigabitEthernet3/0/17
+ power inline auto max 15400
+!
+interface GigabitEthernet3/0/18
+ power inline auto max 15400
+!
+interface GigabitEthernet3/0/19
+ power inline auto max 15400
+!
+interface GigabitEthernet3/0/20
+ power inline auto max 15400
+!
+interface GigabitEthernet3/0/21
+ power inline auto max 15400
+!
+interface GigabitEthernet3/0/22
+ power inline auto max 15400
+!
+interface GigabitEthernet3/0/23
+ power inline auto max 15400
+!
+interface GigabitEthernet3/0/24
+ power inline auto max 15400
+!
+interface GigabitEthernet3/0/25
+ power inline auto max 15400
+!
+interface GigabitEthernet3/0/26
+ power inline auto max 15400
+!
+interface GigabitEthernet3/0/27
+ power inline auto max 15400
+!
+interface GigabitEthernet3/0/28
+ power inline auto max 15400
+!
+interface GigabitEthernet3/0/29
+ power inline auto max 15400
+!
+interface GigabitEthernet3/0/30
+ power inline auto max 15400
+!
+interface GigabitEthernet3/0/31
+ power inline auto max 15400
+!
+interface GigabitEthernet3/0/32
+ power inline auto max 15400
+!
+interface GigabitEthernet3/0/33
+ power inline auto max 15400
+!
+interface GigabitEthernet3/0/34
+ power inline auto max 15400
+!
+interface GigabitEthernet3/0/35
+ power inline auto max 15400
+!
+interface GigabitEthernet3/0/36
+ power inline auto max 15400
+!
+interface GigabitEthernet3/0/37
+ power inline auto max 15400
+!
+interface GigabitEthernet3/0/38
+ power inline auto max 15400
+!
+interface GigabitEthernet3/0/39
+ power inline auto max 15400
+!
+interface GigabitEthernet3/0/40
+ power inline auto max 15400
+!
+interface GigabitEthernet3/0/41
+ power inline auto max 15400
+!
+interface GigabitEthernet3/0/42
+ power inline auto max 15400
+!
+interface GigabitEthernet3/0/43
+ power inline auto max 15400
+!
+interface GigabitEthernet3/0/44
+ power inline auto max 15400
+!
+interface GigabitEthernet3/0/45
+ power inline auto max 15400
+!
+interface GigabitEthernet3/0/46
+ power inline auto max 15400
+!
+interface GigabitEthernet3/0/47
+ power inline auto max 15400
+!
+interface GigabitEthernet3/0/48
+ power inline auto max 15400
+!
+interface GigabitEthernet3/0/49
+!
+interface GigabitEthernet3/0/50
+!
+interface GigabitEthernet3/0/51
+!
+interface GigabitEthernet3/0/52
+!
+interface Vlan1
+ no ip address
+ shutdown
+!
+interface Vlan425
+ description **SWITCH MGMT**
+ ip address 10.67.7.2 255.255.255.0
+ no ip route-cache
+!
+ip default-gateway 10.67.7.1
+no ip http server
+ip http authentication local
+no ip http secure-server
+!
+ip tacacs source-interface Vlan425
+logging host 10.1.24.25
+access-list 99 remark **SNMP Security ACL**
+access-list 99 permit 10.130.148.59
+access-list 99 permit 10.2.93.11
+access-list 99 permit 10.130.176.87
+access-list 99 permit 10.130.146.0 0.0.0.255
+access-list 99 permit 10.130.153.0 0.0.0.255
+access-list 99 remark **END SNMP Security ACL**
+!
+snmp-server community b0ng0 RO 99
+snmp-server community cymb01 RW 99
+snmp ifmib ifindex persist
+tacacs-server host 10.130.146.34 single-connection
+tacacs-server directed-request
+tacacs-server key 7 072D20194B0B185446
+!
+!
+!
+!
+line con 0
+ exec-timeout 60 0
+ logging synchronous
+line vty 0 4
+ exec-timeout 30 0
+ logging synchronous
+ transport input ssh
+line vty 5 15
+ exec-timeout 30 0
+ logging synchronous
+ transport input ssh
+!
+ntp source Vlan425
+ntp server 10.130.146.165
+ntp server 10.130.146.166
+end
